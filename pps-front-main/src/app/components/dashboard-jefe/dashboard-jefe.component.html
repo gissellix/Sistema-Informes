@@ -1,0 +1,199 @@
+<div class="dashboard-container">
+  <!-- HEADER PRINCIPAL -->
+  <header class="dashboard-header">
+    <div class="header-brand">
+      <span class="badge-accent">Jefe Policial</span>
+      <h1 class="header-title">INFORMES DE GUARDIA</h1>
+    </div>
+
+    <div class="header-profile" *ngIf="currentUser">
+      <div class="user-info">
+        <span class="user-name">{{ currentUser.nombre }}</span>
+        <span class="user-role">Legajo: {{ currentUser.legajo }}</span>
+        <!-- Indicador de estado de guardia -->
+        <span class="guardia-indicator"
+          [ngClass]="{'indicator-activa': guardiaActiva, 'indicator-inactiva': !guardiaActiva}">
+          <span class="indicator-dot" [ngClass]="{'dot-green': guardiaActiva, 'dot-red': !guardiaActiva}"></span>
+          {{ guardiaActiva ? 'Guardia Activa' : 'Sin Guardia' }}
+        </span>
+      </div>
+      <button class="logout-btn" (click)="confirmarLogout()" title="Cerrar sesión">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          class="logout-icon">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Salir</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTROL DE GUARDIA -->
+  <main class="dashboard-content">
+    <article class="dashboard-card card-guardia-control">
+      <div class="card-header">
+        <h2 class="card-title">Control de Guardia</h2>
+        <span class="card-subtitle">Gestión de turnos e informes operativos</span>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="guardia-actions-col">
+        <!-- Navega a la pantalla de Guardia Activa -->
+        <button
+          type="button"
+          class="guardia-btn btn-start"
+          (click)="iniciarTurno()">
+
+          {{ guardiaActiva ? 'Ver Guardia Activa' : 'Iniciar Guardia' }}
+
+        </button>
+
+        <button type="button" class="guardia-btn btn-reports" (click)="toggleInformesPopup()">
+          {{ mostrarInformesPopup ? 'Ocultar Informes' : 'Ver Mis Informes' }}
+        </button>
+      </div>
+
+      <!-- Lista desplegable de informes propios -->
+      <div class="my-reports-section" *ngIf="mostrarInformesPopup">
+        <h3 class="reports-section-title">Mis Informes Realizados</h3>
+        <div class="my-reports-list">
+          <div class="my-report-item" *ngFor="let rep of misInformes">
+            <div class="my-report-header">
+              <div class="my-report-meta">
+                <span class="my-report-id">
+                  INFORME #{{ rep.idInformeDTO }}
+                </span>
+                <span class="my-report-date">
+                  🗓 Generado el
+                  {{ rep.fechaGeneracion | date:'dd/MM/yyyy' }}
+                  a las
+                  {{ rep.fechaGeneracion | date:'HH:mm' }}
+                </span>
+              </div>
+            <div class="report-actions-group">
+              <!-- Detalle -->
+              <button class="action-btn detail-btn"
+                (click)="verDetalle(rep.idInformeDTO)"
+                title="Ver detalle del informe">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <span>Ver Detalle</span>
+              </button>
+              
+              <!-- PDF -->
+              <button class="download-pdf-btn"
+                (click)="descargarInforme(rep.idInformeDTO)"
+                title="Descargar PDF">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line
+                    x1="12"
+                    y1="15"
+                    x2="12"
+                    y2="3">
+                  </line>
+                </svg>
+                <span>Descargar PDF</span>
+              </button>
+            </div>
+            </div>
+            <p class="my-report-novedades">📋 Informe de Comisario de Servicio</p>
+          </div>
+          <div class="empty-notice" *ngIf="misInformes.length === 0">
+            No hay informes registrados aún.
+          </div>
+        </div>
+      </div>
+    </article>
+  </main>
+
+<!-- ==========================================
+     MODAL: DETALLES DEL INFORME
+     ========================================== -->
+<div class="modal-overlay" *ngIf="mostrarDetalleModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-header-title">
+        <span class="badge-accent">Informe</span>
+        <h3>Detalle del Informe</h3>
+      </div>
+      <button class="close-modal-btn" (click)="cerrarDetalleModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="report-meta-box">
+        <p><b>Jefe de Guardia:</b> {{ selectedReport?.nombreApellidoJefe }}</p>
+        <p><b>Legajo:</b> {{ selectedReport?.legajoJefe }}</p>
+        <p><b>Jerarquía:</b> {{ selectedReport?.jerarquiaJefe }}</p>
+        <p><b>Unidad Regional:</b> {{ selectedReport?.unidadRegional || 'No especificada' }}</p>
+        <p><b>Inicio:</b> {{ selectedReport?.fechaInicio | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p><b>Fin:</b> {{ selectedReport?.fechaFin | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+      <h4 class="section-subtitle">Novedades de Guardia</h4>
+      <div class="novedades-text-box">
+        <div *ngFor="let novedad of selectedReport?.novedades">
+          <p><b>{{ novedad.tipo }}</b> - {{ novedad.descripcion }}</p>
+          <small>{{ novedad.fechaHora | date:'dd/MM/yyyy HH:mm' }}</small>
+          <hr>
+        </div>
+        <p *ngIf="!selectedReport?.novedades?.length">No se registraron novedades.</p>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="action-btn pdf-btn" (click)="selectedReport && descargarPDF(selectedReport)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Descargar PDF</span>
+      </button>
+      <button class="secondary-btn" (click)="cerrarDetalleModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+  <!-- MODAL DE CONFIRMACIÓN DE LOGOUT -->
+  <div class="modal-overlay" *ngIf="mostrarLogoutConfirm">
+    <div class="modal-box">
+      <div class="modal-icon-warning">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      </div>
+      <h3 class="modal-title">¿Cerrar Sesión?</h3>
+      <p class="modal-message">
+        ¿Está seguro de que desea salir del sistema? Si tiene una guardia activa, se mantendrá
+        pero deberá iniciar sesión nuevamente para continuar.
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn btn-cancel" (click)="cancelarLogout()">Cancelar</button>
+        <button class="modal-btn btn-confirm-logout" (click)="logout()">Sí, Salir</button>
+      </div>
+    </div>
+  </div>
+</div>

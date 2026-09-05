@@ -1,0 +1,409 @@
+<div class="dashboard-container">
+  <!-- HEADER PRINCIPAL -->
+  <header class="dashboard-header">
+    <div class="header-brand">
+      <span class="badge-accent">Directivo</span>
+      <h1 class="header-title">CONTROL DIRECTIVO</h1>
+    </div>
+
+    <div class="header-profile" *ngIf="currentUser">
+      <div class="user-info">
+        <span class="user-name">{{ currentUser.nombre }}</span>
+        <span class="user-role">Legajo: {{ currentUser.legajo }} | Cargo: Director</span>
+      </div>
+      <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          class="logout-icon">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Salir</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SECCIÓN DE BÚSQUEDA Y FILTROS -->
+  <section class="filters-panel">
+    <h2 class="filters-title">Buscador De Informes</h2>
+    <div class="filters-grid">
+      <!-- Filtro Fecha Desde -->
+      <div class="filter-group">
+        <label class="filter-label">Fecha Desde</label>
+        <input
+          type="date"
+          class="filter-input"
+          [(ngModel)]="filtroFechaInicio"
+        />
+      </div>
+      <!-- Filtro Fecha Hasta -->
+      <div class="filter-group">
+        <label class="filter-label">Fecha Hasta</label>
+        <input
+          type="date"
+          class="filter-input"
+          [(ngModel)]="filtroFechaFin"
+        />
+      </div>
+      <!-- Filtro Unidad Regional -->
+      <div class="filter-group">
+        <label class="filter-label">Unidad Regional</label>
+        <select
+          class="filter-input filter-select"
+          [(ngModel)]="filtroUnidadRegional">
+          <option value="">Todas las Unidades</option>
+          <option
+            *ngFor="let ur of unidadesRegionales"
+            [value]="ur">
+            {{ ur }}
+          </option>
+        </select>
+      </div>
+      <!-- Filtro Legajo Jefe -->
+      <div class="filter-group">
+        <label class="filter-label">Legajo Jefe</label>
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            class="filter-input"
+            placeholder="Ej: 2002"
+            [(ngModel)]="filtroLegajoJefe"
+          />
+          <svg
+            class="search-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line
+              x1="21"
+              y1="21"
+              x2="16.65"
+              y2="16.65">
+            </line>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <!-- BOTONES -->
+    <div class="filters-actions">
+      <button
+        class="action-btn"
+        (click)="buscarInformes()">
+        Buscar
+      </button>
+      <button
+        class="clear-filters-btn"
+        *ngIf="
+          filtroFechaInicio ||
+          filtroFechaFin ||
+          filtroUnidadRegional ||
+          filtroLegajoJefe
+        "
+        (click)="limpiarFiltros()">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        <span>Limpiar filtros</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- CONTENIDO INFORMES LISTADOS-->
+  <main class="dashboard-content">
+    <article class="dashboard-card card-reports">
+      <div class="card-header">
+        <h2 class="card-title">Historial de Informes de Guardia</h2>
+        <span class="card-subtitle">
+          Mostrando {{ reports.length }} informe(s)
+        </span>
+      </div>
+
+      <!-- Lista de informes con botones de acciones -->
+      <div class="reports-list">
+        <div class="report-item" *ngFor="let rep of reports">
+          <!-- Icono del documento -->
+          <div class="report-icon-wrapper">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <!-- Información del informe -->
+          <div class="report-info">
+            <div class="report-header-line">
+              <span class="report-title">
+                Informe {{ rep.idInforme }}
+              </span>
+            </div>
+            <span class="report-meta">
+              <b>Fecha:</b>
+              {{ rep.fechaGeneracion | date:'dd/MM/yyyy HH:mm' }}
+              &nbsp;|&nbsp;
+              <b>Jefe:</b>
+              {{ rep.nombreApellido }}
+              &nbsp;|&nbsp;
+              <b>Legajo:</b>
+              {{ rep.legajo }}
+            </span>
+          </div>
+          <!-- Acciones -->
+          <div class="report-actions">
+            <!-- Detalle -->
+            <button
+              class="action-btn detail-btn"
+              (click)="verDetalle(rep.idInforme)"
+              title="Ver detalle del informe">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <span>Detalle</span>
+            </button>
+            <!-- PDF -->
+            <button
+              class="action-btn pdf-btn"
+              (click)="descargarPDF(rep.idInforme)"
+              title="Descargar reporte en PDF">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>PDF</span>
+            </button>
+            <!-- Recorrido GPS -->
+            <button
+              class="action-btn gps-btn"
+              (click)="verRecorridoGps(rep.idInforme)"
+              title="Ver recorrido GPS">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+                <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+                <line x1="9" y1="3" x2="9" y2="18"></line>
+                <line x1="15" y1="6" x2="15" y2="21"></line>
+              </svg>
+              <span>Recorrido GPS</span>
+            </button>
+          </div>
+        </div>
+        <!-- Sin resultados -->
+        <div
+          class="empty-state"
+          *ngIf="reports.length === 0">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            class="empty-icon">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+          <p class="empty-text">
+            No se encontraron informes que coincidan con los filtros aplicados.
+          </p>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <!-- ==========================================
+       MODAL: DETALLES DEL INFORME (NOVEDADES CONSOLIDADAS)
+       ========================================== -->
+  <div class="modal-overlay" *ngIf="mostrarDetalleModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="badge-accent">
+            Informe
+          </span>
+          <h3>Detalle del Informe</h3>
+        </div>
+        <button
+          class="close-modal-btn"
+          (click)="cerrarDetalleModal()">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="report-meta-box">
+          <p>
+            <b>Jefe de Guardia:</b>
+            {{ selectedReport?.nombreApellidoJefe }}
+          </p>
+          <p>
+            <b>Legajo:</b>
+            {{ selectedReport?.legajoJefe }}
+          </p>
+          <p>
+            <b>Jerarquía:</b>
+            {{ selectedReport?.jerarquiaJefe }}
+          </p>
+          <p>
+            <b>Unidad Regional:</b>
+            {{ selectedReport?.unidadRegional || 'No especificada' }}
+          </p>
+          <p>
+            <b>Inicio:</b>
+            {{ selectedReport?.fechaInicio | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p>
+            <b>Fin:</b>
+            {{ selectedReport?.fechaFin | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+        <h4 class="section-subtitle">
+          Novedades de Guardia
+        </h4>
+        <div class="novedades-text-box">
+          <div
+            *ngFor="let novedad of selectedReport?.novedades">
+            <p>
+              <b>{{ novedad.tipo }}</b>
+              -
+              {{ novedad.descripcion }}
+            </p>
+            <small>
+              {{ novedad.fechaHora | date:'dd/MM/yyyy HH:mm' }}
+            </small>
+            <hr>
+          </div>
+          <p
+            *ngIf="!selectedReport?.novedades?.length">
+            No se registraron novedades.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          class="action-btn pdf-btn"
+          (click)="selectedReport && descargarPDF(selectedReport.idInforme)">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Descargar PDF</span>
+        </button>
+        <button
+          class="secondary-btn"
+          (click)="cerrarDetalleModal()">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: RECORRIDO GPS (MAPA INTERACTIVO LEAFLET)
+       ========================================== -->
+  <div class="modal-overlay" *ngIf="mostrarMapModal">
+    <div class="modal-card map-modal-card">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="badge-accent color-cyan">Seguimiento</span>
+          <h3>Recorrido GPS del Turno</h3>
+        </div>
+        <button class="close-modal-btn" (click)="cerrarMapModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="report-meta-box">
+          <p>
+            <b>Jefe de Guardia:</b>
+            {{ selectedReport?.nombreApellidoJefe }}
+            (Leg. {{ selectedReport?.legajoJefe }})
+          </p>
+          <p>
+            <b>Unidad Regional:</b>
+            {{ selectedReport?.unidadRegional }}
+            &nbsp;|&nbsp;
+            <b>Fecha:</b>
+            {{ selectedReport?.fechaInicio | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p class="gps-notice-badge">
+            Rastreo Automático Activo •
+            {{ selectedReport?.recorridoGps?.length || 0 }}
+            coordenadas registradas.
+          </p>
+        </div>
+
+        <!-- Contenedor del Mapa Leaflet -->
+        <div class="map-container-wrapper">
+          <div id="map-canvas" class="leaflet-map-element"></div>
+          <div class="map-legend">
+            <div class="legend-item"><span class="marker-dot dot-start"></span> Inicio de Guardia</div>
+            <div class="legend-item"><span class="marker-dot dot-end"></span> Cierre / Fin de Guardia</div>
+            <div class="legend-item"><span class="line-trace"></span> Ruta de Patrullaje</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <span class="confidential-badge">Solo vista directivos</span>
+        <button class="secondary-btn" (click)="cerrarMapModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+</div>

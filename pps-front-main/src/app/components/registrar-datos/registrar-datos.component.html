@@ -1,0 +1,306 @@
+<div class="registrar-datos-container">
+  <!-- ENCABEZADO -->
+  <header class="registrar-header">
+    <div class="header-brand">
+      <span class="badge-accent">Jefe Policial</span>
+      <h1 class="header-title">REGISTRAR DATOS</h1>
+    </div>
+    <div class="user-info" *ngIf="currentUser">
+      <span class="user-name">{{ currentUser.nombre }}</span>
+      <span class="user-legajo">Legajo: {{ currentUser.legajo }} | Cargo: Jefe Policial</span>
+    </div>
+  </header>
+
+  <!-- BANNER DE MODO EDICIÓN: visible solo cuando se llega desde la Vista Previa del Informe -->
+  <div class="edit-mode-banner" *ngIf="modoEdicion" id="banner-modo-edicion-datos">
+    <div class="banner-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <div class="banner-text">
+      <strong>Estás editando los Datos del Informe en curso.</strong>
+      <span>Los cambios que guardes aquí (personal, chofer, móvil, unidad regional) se reflejarán automáticamente en la Vista Previa del Informe cuando vuelvas.</span>
+    </div>
+    <button class="banner-back-btn" (click)="volverAlInforme()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+      </svg>
+      Volver al Informe
+    </button>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="registrar-content">
+    <article class="registrar-card">
+      <div class="card-header">
+        <h2 class="card-title">Dictado de Datos de la guardia</h2>
+        <span class="card-subtitle">Utilice el micrófono para dictar el parte del turno de forma fluida.</span>
+      </div>
+
+      <!-- DATOS GENERALES DE LA GUARDIA (UNIDAD REGIONAL) -->
+      <section class="general-data-section">
+        <div class="search-block">
+          <h3 class="search-block-title" style="margin-bottom: 0.5rem;">Unidad Regional</h3>
+          <div class="input-group">
+            <select
+              id="unidad-regional"
+              class="search-input"
+              style="width: 100%; cursor: pointer;"
+              [(ngModel)]="unidadRegionalSeleccionada"
+            >
+              <option value="" disabled selected>Seleccione la Unidad Regional...</option>
+              <option *ngFor="let ur of listaUnidadesRegionales" [value]="ur">{{ ur }}</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIONES DE BÚSQUEDA Y ASIGNACIÓN -->
+      <section class="search-sections">
+        <!-- 1. PERSONAL DEL TURNO -->
+        <div class="search-block">
+          <h3 class="search-block-title">Asignar Personal del Turno</h3>
+          
+          <div class="search-form-row">
+            <div class="input-group">
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Legajo del oficial (ej. 3001)"
+                [(ngModel)]="buscarLegajoPersonal"
+                (keyup.enter)="buscarPersonal()"
+              />
+            </div>
+            <button type="button" class="search-btn" (click)="buscarPersonal()">Buscar</button>
+          </div>
+
+          <!-- Tarjeta de oficial encontrado -->
+          <div class="found-card" *ngIf="personalEncontrado">
+            <div class="found-info">
+              <span class="found-name">
+                {{ personalEncontrado.nombre }} {{ personalEncontrado.apellido }}
+              </span>
+              <span class="found-cargo">
+                Cargo o jerarquía: {{ personalEncontrado.jerarquia }}
+                (Legajo: {{ personalEncontrado.legajo }})
+              </span>
+            </div>
+            <button type="button" class="add-badge-btn" (click)="agregarPersonal()">Agregar al Turno</button>
+          </div>
+
+          <!-- Listado de personal agregado -->
+          <div class="added-list-wrapper">
+            <span class="list-label">Personal Agregado ({{ personalTurnoList.length }}):</span>
+            <div class="added-chips-container" *ngIf="personalTurnoList.length > 0">
+              <div
+                class="personal-chip"
+                *ngFor="let p of personalTurnoList; let i = index">
+                <div class="chip-content">
+                  <span class="chip-title">
+                    {{ p.nombre }} {{ p.apellido }}
+                  </span>
+                  <span class="chip-subtitle">
+                    {{ p.jerarquia }} | Legajo: {{ p.legajo }}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  class="remove-chip-btn"
+                  (click)="removerPersonal(i)"
+                  title="Remover">
+                  &times;
+                </button>
+              </div>
+            </div>
+            <div class="empty-list-notice" *ngIf="personalTurnoList.length === 0">
+              Ningún oficial agregado al turno todavía.
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. CHOFER Y MÓVIL -->
+        <div class="search-block">
+          <h3 class="search-block-title">Asignar Chofer y Móvil</h3>
+
+          <!-- Formulario de asignación si no hay chofer asignado -->
+          <div class="assignment-form" *ngIf="!choferAsignado">
+            <div class="search-form-row">
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="search-input"
+                  placeholder="Legajo del chofer (ej. 4001)"
+                  [(ngModel)]="buscarLegajoChofer"
+                  (keyup.enter)="buscarChofer()"
+                />
+              </div>
+              <button type="button" class="search-btn" (click)="buscarChofer()">Buscar Chofer</button>
+            </div>
+
+            <!-- Chofer encontrado: ingresar móvil -->
+            <div class="driver-found-row animate-fade" *ngIf="choferEncontrado">
+              <div class="driver-preview">
+                <span class="driver-name">
+                  {{ choferEncontrado.nombre }} {{ choferEncontrado.apellido }}
+                </span>
+                <span class="driver-cargo">
+                  Jerarquía: {{ choferEncontrado.jerarquia }}
+                  (Legajo: {{ choferEncontrado.legajo }})
+                </span>
+              </div>
+              <div class="movil-input-row" style="display: flex; gap: 0.5rem; flex-direction: column;">
+                <div style="display: flex; gap: 0.5rem; width: 100%;">
+                  <input
+                    type="text"
+                    class="search-input movil-input"
+                    placeholder="Número de móvil (ej. M-104)"
+                    style="flex: 1;"
+                    [(ngModel)]="nroMovil"
+                  />
+                  <input
+                    type="text"
+                    class="search-input movil-input"
+                    placeholder="Patente (ej. AB123CD)"
+                    style="flex: 1;"
+                    [(ngModel)]="patente"
+                  />
+                </div>
+                <button type="button" class="assign-btn" style="width: 100%; margin-top: 0.25rem;" (click)="asignarChofer()">Asignar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chofer y móvil asignados -->
+          <div class="assigned-card animate-fade" *ngIf="choferAsignado">
+            <div class="assigned-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13" rx="2" ry="2" />
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                <circle cx="5.5" cy="18.5" r="2.5" />
+                <circle cx="18.5" cy="18.5" r="2.5" />
+              </svg>
+            </div>
+            <div class="assigned-details">
+              <span class="assigned-movil">
+                MÓVIL:
+                {{ choferAsignado.movil || 'Sin número' }}
+                |
+                PATENTE:
+                {{ choferAsignado.patente || 'Sin patente' }}
+              </span>
+              <span class="assigned-driver">
+                Chofer:
+                [Legajo {{ choferAsignado.legajo }}]
+                {{ choferAsignado.nombre }}
+                {{ choferAsignado.apellido }}
+              </span>
+            </div>
+            <button type="button" class="change-btn" (click)="removerChofer()">Cambiar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN DEL GRABADOR -->
+      <section class="recorder-section">
+        <!-- ESTADO: INACTIVO (Listo para grabar) -->
+        <div class="state-container" *ngIf="recordingState === 'inactivo'">
+          <p class="state-instruction">Presione el botón para comenzar a grabar el reporte del turno.</p>
+          <button class="record-btn btn-idle" (click)="comenzarGrabacion()" title="Iniciar grabación">
+            <div class="btn-mic-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 1v11M19 8v2a7 7 0 0 1-14 0V8M12 23v-4" />
+                <rect x="9" y="3" width="6" height="10" rx="3" />
+              </svg>
+            </div>
+            <span class="record-label">Comenzar Grabación</span>
+          </button>
+        </div>
+
+        <!-- ESTADO: GRABANDO -->
+        <div class="state-container" *ngIf="recordingState === 'grabando'">
+          <div class="recording-animation">
+            <span class="wave-bar wave1"></span>
+            <span class="wave-bar wave2"></span>
+            <span class="wave-bar wave3"></span>
+            <span class="wave-bar wave4"></span>
+            <span class="wave-bar wave5"></span>
+          </div>
+
+          <div class="timer-display">{{ getTimerFormateado() }}</div>
+          <p class="state-status text-recording">Grabando audio desde su micrófono...</p>
+
+          <button class="record-btn btn-recording" (click)="detenerGrabacion()" title="Detener grabación">
+            <div class="btn-stop-icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+              </svg>
+            </div>
+            <span class="record-label">Detener y Procesar</span>
+          </button>
+        </div>
+
+        <!-- ESTADO: PROCESANDO / TRANSCRIBIENDO -->
+        <div class="state-container" *ngIf="recordingState === 'procesando'">
+          <div class="spinner-wrapper">
+            <div class="transcribe-spinner"></div>
+          </div>
+          <h3 class="processing-title">Transcribiendo voz a texto...</h3>
+        </div>
+
+        <!-- ESTADO: COMPLETADO (Edición y reproducción) -->
+        <div class="state-container" *ngIf="recordingState === 'completado'">
+          <!-- Reproductor de audio nativo -->
+          <div class="audio-player-wrapper" *ngIf="audioUrl">
+            <span class="player-title">Audio Grabado:</span>
+            <audio [src]="audioUrl" controls class="custom-audio-element"></audio>
+          </div>
+
+          <!-- Caja de texto editable con la transcripción -->
+          <div class="transcription-editor">
+            <label for="transcripcion" class="editor-label">
+              Transcripción Obtenida (Puede modificar el texto si es necesario):
+            </label>
+            <textarea id="transcripcion" class="editor-textarea" [(ngModel)]="transcripcionText"
+              placeholder="Redacte el reporte aquí..." rows="6"></textarea>
+
+            <div class="integration-notice">
+              <span class="notice-icon">ℹ</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- OPCIONES / ACCIONES INFERIORES -->
+      <footer class="registrar-footer-actions">
+        <!-- Volver (Siempre visible para cancelar) -->
+        <button class="footer-btn btn-cancelar" (click)="cancelar()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          <span>Cancelar</span>
+        </button>
+
+        <!-- Botón Regrabar (Solo visible si ya finalizó) -->
+        <button class="footer-btn btn-regrabar" *ngIf="recordingState === 'completado'" (click)="regrabar()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6M1 20v-6h6" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+          </svg>
+          <span>Regrabar Audio</span>
+        </button>
+
+        <!-- Botón Guardar y Finalizar (Solo visible si ya finalizó) -->
+        <button class="footer-btn btn-guardar" *ngIf="recordingState === 'completado'" (click)="guardarReporte()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span>Guardar y Finalizar</span>
+        </button>
+      </footer>
+    </article>
+  </main>
+</div>

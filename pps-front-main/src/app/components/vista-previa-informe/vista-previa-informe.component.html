@@ -1,0 +1,248 @@
+<div class="vista-previa-container">
+  <!-- ENCABEZADO -->
+  <header class="vista-header">
+    <div class="header-brand">
+      <span class="badge-accent">Jefe Policial</span>
+      <h1 class="header-title">VISTA PREVIA DEL INFORME FINAL</h1>
+    </div>
+    <div class="user-info" *ngIf="currentUser">
+      <span class="user-name">{{ currentUser.nombre }}</span>
+      <span class="user-legajo">Legajo: {{ currentUser.legajo }} | Cargo: Jefe Policial</span>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL EN DOS COLUMNAS -->
+  <main class="vista-content split-layout">
+    
+    <!-- COLUMNA IZQUIERDA: CONTROLES Y EDICIÓN -->
+    <section class="left-panel">
+      <div class="control-card">
+        <h2 class="panel-section-title">Controles del Informe</h2>
+        <p class="panel-section-desc">
+          Revise los datos del reporte antes de finalizar la guardia. Si necesita corregir algo,
+          use los botones de edición correspondientes.
+        </p>
+
+        <!-- BOTONES DE EDICIÓN RÁPIDA -->
+        <div class="edit-shortcuts-section">
+          <label class="section-label">Editar información del informe</label>
+          <div class="edit-buttons-row">
+            <!-- Botón: ir a Registrar Datos (personal, móvil, unidad regional) -->
+            <button class="edit-shortcut-btn btn-datos" (click)="editarDatos()" id="btn-editar-datos">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Editar Datos del Personal</span>
+            </button>
+
+            <!-- Botón: ir a Registrar Novedades -->
+            <button class="edit-shortcut-btn btn-novedades" (click)="editarNovedades()" id="btn-editar-novedades">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <span>Editar Novedades</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- TEXTAREA DE EDICIÓN DEL INFORME (OBSERVACIONES/TEXTO CONSOLIDADO) -->
+        <div class="informe-editor-section">
+          <label for="informeText" class="section-label">
+            Texto Consolidado del Informe (Edición libre de observaciones):
+          </label>
+          <textarea id="informeText" class="editor-textarea" [(ngModel)]="informeConsolidadoText"
+            placeholder="Cargando informe consolidado..." rows="12"></textarea>
+        </div>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN (INCLUYE FINALIZAR TURNO) -->
+      <footer class="vista-footer-actions">
+        <!-- Volver a Guardia Activa -->
+        <button class="footer-btn btn-volver" (click)="volver()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          <span>Volver</span>
+        </button>
+
+        <!-- Finalizar Turno y Guardar Informe -->
+        <button class="footer-btn btn-finalizar" (click)="finalizarYGuardar()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          <span>Guardar y Finalizar</span>
+        </button>
+      </footer>
+    </section>
+
+    <!-- COLUMNA DERECHA: VISTA PREVIA DE IMPRESIÓN (A4) -->
+    <section class="right-panel">
+      <div class="sheet-container-wrapper">
+        <span class="sheet-indicator">VISTA DE IMPRESIÓN DEL INFORME</span>
+        
+        <!-- HOJA FISICA A4 MOCK -->
+        <div class="print-preview-sheet">
+          
+          <!-- CABECERA -->
+          <div class="sheet-header">
+            <div class="header-left">
+              <div class="logo-placeholder">
+                <!-- 
+                  El escudo se carga desde la carpeta public/.
+                  Para cambiarlo, reemplazar el archivo: public/escudo.png
+                  En caso de que no exista el archivo, se muestra un icono SVG de escudo.
+                -->
+                <img [src]="escudoPath" class="sheet-logo-img" alt="Escudo Oficial"
+                     (error)="imgEscudo.style.display='none'; fallbackEscudo.style.display='flex'"
+                     #imgEscudo />
+                <div class="no-logo-placeholder" style="display:none" #fallbackEscudo>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  <span class="placeholder-text">ESCUDO</span>
+                </div>
+              </div>
+              <span class="header-subtitle">POLICIA DE LA PROVINCIA DE JUJUY</span>
+            </div>
+            
+            <div class="header-right">
+              <h2 class="sheet-main-title">INFORME COMISARIO DE SERVICIO</h2>
+            </div>
+          </div>
+
+          <!-- LÍNEA DE SEPARACIÓN -->
+          <div class="sheet-divider"></div>
+
+          <!-- DATOS DE FECHA Y UNIDAD -->
+          <div class="sheet-meta-row">
+            <div class="meta-item">
+              <span class="meta-label">Fecha:</span> 
+              <span class="meta-value">{{ getFechaFormatoRequerido() }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Unidad Regional:</span> 
+              <span class="meta-value">{{ informe?.unidadRegional || 'No registrada' }}</span>
+            </div>
+          </div>
+
+          <!-- CONTENEDOR DE TABLAS (TABLA DE PERSONAL Y MINI TABLA DEL MOVIL LADO A LADO) -->
+          <div class="sheet-tables-row">
+            
+            <!-- Tabla de Personal -->
+            <div class="table-personal-wrapper">
+              <table class="sheet-table">
+                <thead>
+                  <tr>
+                    <th>Rol</th>
+                    <th>Jerarquía</th>
+                    <th>Legajo</th>
+                    <th>Apellido y nombre</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Comisario de Servicio (Jefe activo) -->
+                  <tr>
+                    <td class="cell-rol">COMISARIO DE SERVICIO</td>
+                    <td>{{ informe?.jerarquiaJefe || 'No registrada' }}</td>
+                    <td>{{ informe?.legajoJefe || 'No registrado' }}</td>
+                    <td class="cell-uppercase">
+                      {{ informe?.nombreApellidoJefe || 'No registrado' }}
+                    </td>
+                  </tr>
+                  <!-- Chofer Asignado -->
+                  <tr *ngIf="informe?.nombreApellidoChofer">
+                    <td class="cell-rol">
+                      CHOFER</td>
+                    <td>
+                      {{ informe?.jerarquiaChofer }}</td>
+                    <td>
+                      {{ informe?.legajoChofer }}</td>
+                    <td class="cell-uppercase">
+                      {{ informe?.nombreApellidoChofer }}</td>
+                  </tr>
+                  <!-- Personal Asignado -->
+                  <tr
+                    *ngFor="let p of informe?.personalTurnoList">
+                    <td class="cell-rol">
+                      PERSONAL DE TURNO</td>
+                    <td>
+                      {{ p.jerarquia }}</td>
+                    <td>
+                      {{ p.legajo }}</td>
+                    <td class="cell-uppercase">
+                      {{ p.apellido }} {{ p.nombre }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mini Tabla de Móvil al costado -->
+            <div class="table-movil-wrapper">
+              <table class="sheet-table mini-table">
+                <thead>
+                  <tr>
+                    <th class="cell-header-movil">MOVIL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="cell-value-movil">{{ informe?.numeroMovil || 'Sin móvil' }}</td>
+                  </tr>
+                  <tr>
+                    <th class="cell-header-movil">PATENTE</th>
+                  </tr>
+                  <tr>
+                    <td class="cell-value-legajo">
+                      {{ informe?.patente || 'Sin patente' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+          </div>
+
+          <!-- SECCIÓN NOVEDADES -->
+          <div class="sheet-novedades-section">
+            <h3 class="novedades-title">NOVEDADES</h3>
+            <div class="sheet-novedades-line"></div>
+            
+            <div class="novedades-list-container">
+              <!-- Si hay novedades estructuradas -->
+              <div class="novedad-row-item"*ngFor="let nov of informe?.novedades">
+                <span class="novedad-type">{{ nov.tipo || 'General' }}</span>
+                <span class="novedad-sep">-</span>
+                <span class="novedad-text">{{ nov.descripcion }}</span>
+              </div>
+              
+              <!-- Si no hay novedades registradas -->
+              <div
+                *ngIf="!informe?.novedades || informe?.novedades?.length === 0"
+                class="no-novedades-msg">
+                No se registraron novedades en este turno.
+              </div>
+            </div>
+          </div>
+
+          <!-- FIRMAS EN EL PIE DE LA HOJA -->
+          <div class="sheet-signature-section">
+            <div class="signature-line"></div>
+            <span class="signature-label">Firma y Aclaración del Comisario de Servicio</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>

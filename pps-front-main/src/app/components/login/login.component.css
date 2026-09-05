@@ -1,0 +1,389 @@
+/* Container layout */
+.login-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-deep, #0b0f19);
+  font-family: 'Outfit', sans-serif;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 1.5rem;
+}
+
+/* Ambient glow backdrops */
+.glow-bg-blue {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, rgba(37, 99, 235, 0.05) 50%, transparent 100%);
+  top: -150px;
+  left: -150px;
+  filter: blur(80px);
+  z-index: 1;
+  pointer-events: none;
+  animation: pulse-glow 15s infinite alternate ease-in-out;
+}
+
+.glow-bg-gold {
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.1) 0%, rgba(234, 179, 8, 0.02) 60%, transparent 100%);
+  bottom: -100px;
+  right: -100px;
+  filter: blur(80px);
+  z-index: 1;
+  pointer-events: none;
+  animation: pulse-glow-reverse 12s infinite alternate ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.2) translate(80px, 50px); }
+}
+
+@keyframes pulse-glow-reverse {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.1) translate(-50px, -40px); }
+}
+
+/* Glassmorphism Card */
+.login-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2.5rem 2.2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card:hover {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 
+              0 0 30px rgba(0, 240, 255, 0.05);
+}
+
+/* Brand Section */
+.brand-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.badge-icon-wrapper {
+  width: 85px;
+  height: 85px;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.3));
+}
+
+.police-badge-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.brand-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.4rem;
+  margin-bottom: 0;
+  letter-spacing: 0.5px;
+}
+
+/* Error Banner */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1.5rem;
+  animation: slide-in-top 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slide-in-top {
+  0% { transform: translateY(-10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.error-icon {
+  color: #f87171;
+  display: flex;
+  align-items: center;
+}
+
+.error-text {
+  color: #fca5a5;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Form Styling */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.input-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  padding-left: 0.2rem;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.form-input {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.85rem 1rem 0.85rem 2.8rem;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.form-input::placeholder {
+  color: #475569;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: rgba(0, 240, 255, 0.8);
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+}
+
+.form-input:focus ~ .input-icon {
+  color: #00f0ff;
+}
+
+.password-input {
+  padding-right: 2.8rem;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.password-toggle-btn:hover {
+  color: #94a3b8;
+}
+
+.password-toggle-btn:focus {
+  outline: none;
+  color: #00f0ff;
+}
+
+/* Submit Button */
+.submit-btn {
+  position: relative;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 0.95rem;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 
+              0 0 15px rgba(0, 240, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.submit-btn:disabled {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #475569;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-text {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+/* Loader spinner */
+.loader-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Demo Access Section */
+.demo-access-section {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.demo-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.demo-divider::before,
+.demo-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.demo-divider-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #475569;
+  padding: 0 0.75rem;
+}
+
+.demo-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.demo-btn {
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 0.75rem 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.role-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.btn-directivo .role-badge {
+  color: #eab308; /* Gold tone for Executive */
+}
+
+.btn-jefe .role-badge {
+  color: #06b6d4; /* Cyan/blue tone for Police Chief */
+}
+
+.btn-admin .role-badge {
+  color: #a855f7; /* Purple tone for Admin */
+}
+
+.role-desc {
+  font-size: 0.62rem;
+  color: #64748b;
+}
+
+.demo-btn:hover:not(:disabled) {
+  background: rgba(30, 41, 59, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-directivo:hover:not(:disabled) {
+  border-color: rgba(234, 179, 8, 0.3);
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.05);
+}
+
+.btn-jefe:hover:not(:disabled) {
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.05);
+}
+
+.btn-admin:hover:not(:disabled) {
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.05);
+}
+
+.demo-btn:active:not(:disabled) {
+  transform: translateY(0);
+}

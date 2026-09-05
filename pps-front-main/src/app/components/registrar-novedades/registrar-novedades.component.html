@@ -1,0 +1,227 @@
+<div class="registrar-novedades-container">
+  <!-- ENCABEZADO -->
+  <header class="registrar-header">
+    <div class="header-brand">
+      <span class="badge-accent">Jefe Policial</span>
+      <h1 class="header-title">REGISTRAR NOVEDADES</h1>
+    </div>
+    <div class="user-info" *ngIf="currentUser">
+      <span class="user-name">{{ currentUser.nombre }}</span>
+      <span class="user-legajo">Legajo: {{ currentUser.legajo }} | Cargo: Jefe Policial</span>
+    </div>
+  </header>
+
+  <!-- BANNER DE MODO EDICIÓN: visible solo cuando se llega desde la Vista Previa del Informe -->
+  <div class="edit-mode-banner" *ngIf="modoEdicion" id="banner-modo-edicion-novedades">
+    <div class="banner-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <div class="banner-text">
+      <strong>Estás editando las Novedades del Informe en curso.</strong>
+      <span>Podés agregar o eliminar novedades. Los cambios se guardan en tiempo real y estarán disponibles en la Vista Previa del Informe cuando vuelvas.</span>
+    </div>
+    <button class="banner-back-btn" (click)="volverAlInforme()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+      </svg>
+      Volver al Informe
+    </button>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="registrar-content">
+    <article class="registrar-card">
+      <div class="card-header">
+        <h2 class="card-title">Dictado de Incidentes por Voz</h2>
+        <span class="card-subtitle">Utilice el micrófono para dictar novedades de la guardia.</span>
+      </div>
+
+      <!-- SECCIÓN DEL GRABADOR -->
+      <section class="recorder-section">
+        <!-- ESTADO: INACTIVO (Listo para grabar) -->
+        <div class="state-container" *ngIf="recordingState === 'inactivo'">
+          <!-- SELECCIONADOR DE TIPO DE NOVEDAD -->
+          <div class="tipo-novedad-selector-container" style="width: 100%; max-width: 480px; margin-bottom: 2rem; text-align: left;">
+            <label class="section-label" style="font-weight: 700; color: #272a2e; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.75rem;">
+              Seleccione el Tipo de Novedad
+            </label>
+            <div class="tipo-novedad-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+              <button 
+                type="button" 
+                *ngFor="let tipo of listaTiposNovedad" 
+                (click)="tipoNovedadSeleccionado = tipo"
+                [class.active]="tipoNovedadSeleccionado === tipo"
+                class="tipo-novedad-btn"
+                style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(10, 10, 10, 0.08); color: #030303; padding: 0.75rem; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600; text-align: center; transition: all 0.2s ease;"
+              >
+                {{ tipo === 'Finalizacion de servicio' ? 'Finalización de Servicio' : tipo }}
+              </button>
+            </div>
+
+            <!-- Mostrar selección de Seccional -->
+            <div *ngIf="tipoNovedadSeleccionado === 'Seccional'" class="seccional-selector animate-fade" style="margin-top: 1rem;">
+              <label for="seccional-nro" style="font-size: 0.78rem; color: #64748b; font-weight: 600; display: block; margin-bottom: 0.5rem;">
+                Número de Seccional
+              </label>
+              <select 
+                id="seccional-nro" 
+                class="search-input" 
+                style="width: 100%; cursor: pointer;"
+                [(ngModel)]="nroSeccionalSeleccionado"
+              >
+                <option value="" disabled selected>Seleccione la Seccional...</option>
+                <option *ngFor="let sec of listaSeccionales" [value]="sec">Seccional {{ sec }}</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="state-instruction">Presione el botón para comenzar a grabar las novedades del turno.</p>
+          <button 
+            class="record-btn btn-idle" 
+            (click)="comenzarGrabacion()" 
+            [disabled]="!tipoNovedadSeleccionado || (tipoNovedadSeleccionado === 'Seccional' && !nroSeccionalSeleccionado)"
+            [style.opacity]="(!tipoNovedadSeleccionado || (tipoNovedadSeleccionado === 'Seccional' && !nroSeccionalSeleccionado)) ? '0.5' : '1'"
+            title="Iniciar grabación"
+          >
+            <div class="btn-mic-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 1v11M19 8v2a7 7 0 0 1-14 0V8M12 23v-4" />
+                <rect x="9" y="3" width="6" height="10" rx="3" />
+              </svg>
+            </div>
+            <span class="record-label">Comenzar Grabación</span>
+          </button>
+        </div>
+
+        <!-- ESTADO: GRABANDO -->
+        <div class="state-container" *ngIf="recordingState === 'grabando'">
+          <div class="recording-animation">
+            <span class="wave-bar wave1"></span>
+            <span class="wave-bar wave2"></span>
+            <span class="wave-bar wave3"></span>
+            <span class="wave-bar wave4"></span>
+            <span class="wave-bar wave5"></span>
+          </div>
+
+          <div class="timer-display">{{ getTimerFormateado() }}</div>
+          <p class="state-status text-recording">Grabando audio de novedades...</p>
+
+          <button class="record-btn btn-recording" (click)="detenerGrabacion()" title="Detener grabación">
+            <div class="btn-stop-icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+              </svg>
+            </div>
+            <span class="record-label">Detener y Procesar</span>
+          </button>
+        </div>
+
+        <!-- ESTADO: PROCESANDO / TRANSCRIBIENDO -->
+        <div class="state-container" *ngIf="recordingState === 'procesando'">
+          <div class="spinner-wrapper">
+            <div class="transcribe-spinner"></div>
+          </div>
+          <h3 class="processing-title">Transcribiendo novedades...</h3>
+        </div>
+
+        <!-- ESTADO: COMPLETADO (Edición y reproducción) -->
+        <div class="state-container" *ngIf="recordingState === 'completado'">
+          <!-- Reproductor de audio nativo -->
+          <div class="audio-player-wrapper" *ngIf="audioUrl">
+            <span class="player-title">Audio Grabado:</span>
+            <audio [src]="audioUrl" controls class="custom-audio-element"></audio>
+          </div>
+
+          <!-- Caja de texto editable con la transcripción -->
+          <div class="transcription-editor">
+            <!-- Selector de Hora del Suceso -->
+            <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 0.65rem 1rem; border-radius: 12px; flex-wrap: wrap;">
+              <label for="hora-novedad" style="font-size: 0.82rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">
+                Hora del Suceso:
+              </label>
+              <input
+                id="hora-novedad"
+                type="time"
+                class="search-input"
+                style="max-width: 130px; padding: 0.45rem 0.65rem; font-size: 0.85rem;"
+                [(ngModel)]="horaNovedad"
+              />
+              <span style="font-size: 0.75rem; color: #64748b; font-style: italic;">
+                (Por defecto es la hora actual, puede modificarla)
+              </span>
+            </div>
+
+            <label for="transcripcion" class="editor-label">
+              Transcripción de Novedades (Puede modificar el texto si es necesario):
+            </label>
+            <textarea id="transcripcion" class="editor-textarea" [(ngModel)]="transcripcionText"
+              placeholder="Redacte las novedades aquí..." rows="6"></textarea>
+
+            <div class="integration-notice">
+              <span class="notice-icon">ℹ</span>
+              <span class="notice-text">
+                Las novedades registradas se registrarán en el informe final.
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LISTADO DE NOVEDADES REGISTRADAS EN EL TURNO -->
+      <section class="novedades-list-section" *ngIf="novedadesList.length > 0">
+        <h3 class="novedades-section-title">Novedades Registradas en este Turno</h3>
+        <div class="novedades-items">
+          <div class="novedad-item-card" *ngFor="let nov of novedadesList">
+            <div class="novedad-item-header">
+              <span class="novedad-time">{{ nov.fechaHora | date:'dd/MM/yyyy - HH:mm' }}</span>
+              <span class="novedad-tipo" *ngIf="nov.tipo" style="background: rgba(34, 211, 238, 0.1); border: 1px solid rgba(34, 211, 238, 0.2); color: #22d3ee; padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.72rem; font-weight: 700;">
+                {{ nov.tipo }}
+              </span>
+              <span class="novedad-gps" *ngIf="nov.latitud != null && nov.longitud != null">Lat: {{ nov.latitud }}, Lon: {{ nov.longitud }}</span>
+              <button type="button" class="delete-nov-btn" (click)="eliminarNovedad(nov.idNovedad!)" title="Eliminar novedad">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            </div>
+            <p class="novedad-text">{{ nov.descripcion }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- OPCIONES / ACCIONES INFERIORES -->
+      <footer class="registrar-footer-actions">
+        <!-- Volver a Guardia Activa -->
+        <button class="footer-btn btn-cancelar" (click)="cancelar()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+          <span>Volver a Guardia Activa</span>
+        </button>
+
+        <!-- Botón Regrabar -->
+        <button class="footer-btn btn-regrabar" *ngIf="recordingState === 'completado'" (click)="regrabar()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6M1 20v-6h6" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+          </svg>
+          <span>Regrabar Audio</span>
+        </button>
+
+        <!-- Botón Guardar Novedad -->
+        <button class="footer-btn btn-guardar" *ngIf="recordingState === 'completado'" (click)="guardarReporte()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span>Guardar Novedad</span>
+        </button>
+      </footer>
+    </article>
+  </main>
+</div>

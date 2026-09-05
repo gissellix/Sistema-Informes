@@ -1,0 +1,195 @@
+﻿/* Import Outfit Font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Design tokens and variables - High Contrast adjustments */
+  --bg-deep: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.75);
+  
+  --primary: #2563eb;
+  --primary-hover: #3b82f6;
+  
+  --accent-cyan: #06b6d4;
+  --accent-gold: #eab308;
+  
+  --text-light: #ffffff;
+  --text-muted: #cbd5e1;
+  --border-glass: rgba(255, 255, 255, 0.15);
+}
+
+/* Browser resets */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-deep);
+  color: var(--text-light);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Custom Scrollbar Styles for premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070a13;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.2);
+}
+
+/* === THEME OVERRIDE FOR WHITE CARDS (USER REQUEST) === */
+.dashboard-card, .registrar-card, .status-card, .control-interface-card, .control-card, .edit-shortcuts-section, .report-item, .user-card, .modal-card, .modal-box, .my-report-item, .novedades-text-box, .filters-panel {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+}
+
+.dashboard-card *, .registrar-card *, .status-card *, .control-interface-card *, .user-card *, .modal-card *, .modal-box * {
+    /* Permitimos a elementos específicos tener sus propios colores de fuente oscuros pero heredamos oscuro por defecto */
+}
+
+/* Formularios en tarjetas blancas */
+.dashboard-card input, .dashboard-card select, .dashboard-card textarea, 
+.registrar-card input, .registrar-card select, .registrar-card textarea, 
+.modal-card input, .modal-card select, .modal-card textarea,
+.filters-panel input, .filters-panel select {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.dashboard-card input:focus, .dashboard-card select:focus, .dashboard-card textarea:focus, 
+.registrar-card input:focus, .registrar-card select:focus, .registrar-card textarea:focus {
+    border-color: #3b82f6 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Textos dentro de las tarjetas */
+.card-title, .user-card-name, .report-title, .modal-title, .detail-value, .form-control {
+    color: #0f172a !important;
+}
+
+.card-subtitle, .info-label, .detail-label, .form-label, .section-subtitle, 
+.guardia-status-label, .user-card-legajo, .report-meta, .novedades-content, 
+.filter-label, .empty-title, .empty-text, .my-report-date, .my-report-novedades {
+    color: #475569 !important;
+}
+
+/* Fix tabs color on light mode */
+.tab-btn.active {
+    color: #2563eb !important;
+}
+
+.tab-btn {
+    color: #64748b !important;
+}
+.tab-btn:hover {
+    color: #3b82f6 !important;
+}
+.tab-btn.active::after {
+    background: #2563eb !important;
+}
+
+/* Bordes divisorios */
+.card-header, .user-card-actions, .my-reports-section, .my-report-header, .modal-header, .modal-footer, .control-divider {
+    border-color: #e2e8f0 !important;
+}
+
+/* Botones secundarios en fondo blanco */
+.btn-atras, .btn-reports, .clear-filters-btn, .secondary-btn, .btn-cancel, .close-modal-btn {
+    background: transparent !important;
+    border: 1px solid #94a3b8 !important;
+    color: #475569 !important;
+}
+.btn-atras:hover, .btn-reports:hover, .clear-filters-btn:hover, .secondary-btn:hover, .btn-cancel:hover, .close-modal-btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Botón Editar o Ver detalle secundarios */
+.detail-btn, .action-btn {
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+}
+.detail-btn:hover, .action-btn:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Excepciones (Botones que deben mantener su estilo) */
+.toggle-status-btn { border-color: #93c5fd !important; color: #2563eb !important; }
+.edit-btn { border-color: #fde047 !important; color: #d97706 !important; }
+.delete-btn { border-color: #fca5a5 !important; color: #dc2626 !important; }
+.pdf-btn { border-color: #86efac !important; color: #16a34a !important; }
+.gps-btn { border-color: #a5f3fc !important; color: #0891b2 !important; }
+.edit-shortcut-btn.btn-datos {
+    background: #f3f4f7 !important;
+    border-color: #bfdbfe !important;
+    color: #1e40af !important;
+}
+
+.edit-shortcut-btn.btn-novedades {
+    background: #fff7ed !important;
+    border-color: #fed7aa !important;
+    color: #9a3412 !important;
+}
+
+/* Labels en checkbox */
+.checkbox-label {
+    color: #1e293b !important;
+}
+
+/* Empty icon */
+.empty-icon {
+    color: #94a3b8 !important;
+}
+
+/* Status indicator y avatares para contraste */
+.disabled-card {
+    background: #e2e8f0 !important;
+}
+.avatar-text {
+    color: #1e40af !important;
+}
+
+/* Botones de Grabación adaptados */
+.btn-idle {
+    background: #ecfeff !important;
+    border-color: #06b6d4 !important;
+    color: #0891b2 !important;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2) !important;
+}
+.btn-idle:hover {
+    background: #cffafe !important;
+    border-color: #0891b2 !important;
+}
+
+.btn-recording {
+    background: #fef2f2 !important;
+    border-color: #ef4444 !important;
+    color: #dc2626 !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3) !important;
+}
+.btn-recording:hover {
+    background: #fee2e2 !important;
+    border-color: #dc2626 !important;
+}
